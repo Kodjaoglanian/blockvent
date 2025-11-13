@@ -103,9 +103,32 @@ export async function getAllAssets() {
     try {
         await ensureConnection();
         const result = await contract.evaluateTransaction('GetAllAssets');
-        return JSON.parse(result.toString());
+        const resultString = result.toString();
+        if (!resultString || resultString.trim() === '') {
+            return [];
+        }
+        try {
+            return JSON.parse(resultString);
+        } catch (parseError) {
+            // Se não for JSON válido, retorna como string ou array vazio
+            console.warn('Resposta não é JSON válido:', resultString);
+            return resultString ? [resultString] : [];
+        }
     } catch (error) {
         console.error('Erro ao buscar todos os ativos:', error);
+        console.error('Detalhes do erro:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+        });
+        
+        // Mensagem mais clara sobre o possível problema
+        if (error.message && error.message.includes('Query failed')) {
+            const enhancedError = new Error('Função GetAllAssets não encontrada no chaincode. Verifique se o chaincode "patrimonio" possui esta função ou se o nome está correto.');
+            enhancedError.originalError = error;
+            throw enhancedError;
+        }
+        
         throw error;
     }
 }
@@ -117,9 +140,23 @@ export async function getAssetById(id) {
     try {
         await ensureConnection();
         const result = await contract.evaluateTransaction('GetAsset', id);
-        return JSON.parse(result.toString());
+        const resultString = result.toString();
+        if (!resultString || resultString.trim() === '') {
+            throw new Error('Ativo não encontrado');
+        }
+        try {
+            return JSON.parse(resultString);
+        } catch (parseError) {
+            // Se não for JSON, retorna como objeto simples
+            return { id: id, data: resultString };
+        }
     } catch (error) {
         console.error(`Erro ao buscar ativo ${id}:`, error);
+        console.error('Detalhes do erro:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+        });
         throw error;
     }
 }
