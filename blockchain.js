@@ -56,7 +56,7 @@ export async function connect() {
         const connectionOptions = {
             wallet,
             identity: 'admin',
-            discovery: { enabled: true, asLocalhost: false },
+            discovery: { enabled: false, asLocalhost: false },
         };
 
         await gateway.connect(connectionProfile, connectionOptions);
