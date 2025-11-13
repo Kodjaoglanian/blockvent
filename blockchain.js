@@ -28,19 +28,11 @@ export async function connect() {
             console.log('Carregando identidade do admin...');
             
             // Ler certificado e chave privada
-            const certPath = path.join(IDENTITY_PATH, 'signcerts', 'cert.pem');
-            const keyPath = path.join(IDENTITY_PATH, 'keystore');
-            
-            // Encontrar arquivo de chave privada
-            const keyFiles = fs.readdirSync(keyPath);
-            const keyFile = keyFiles.find(file => file.endsWith('_sk'));
-            
-            if (!keyFile) {
-                throw new Error('Chave privada não encontrada');
-            }
+            const certPath = '/root/hyperledger-fabric/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/Admin@org1.example.com-cert.pem';
+            const keyPath = '/root/hyperledger-fabric/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/keystore/priv_sk';
             
             const cert = fs.readFileSync(certPath).toString();
-            const key = fs.readFileSync(path.join(keyPath, keyFile)).toString();
+            const key = fs.readFileSync(keyPath).toString();
             
             // Criar identidade
             const x509Identity = {

@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import * as blockchain from './blockchain.js';
 
-const PORT = 8080;
+const PORT = 8586;
 const PUBLIC_DIR = path.join(process.cwd(), 'public');
 
 // MIME types para arquivos estáticos

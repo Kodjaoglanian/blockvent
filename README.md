@@ -34,7 +34,7 @@ Inicie o servidor:
 npm start
 ```
 
-O servidor estará disponível em `http://localhost:8080`
+O servidor estará disponível em `http://localhost:8586`
 
 ## Endpoints da API
 
