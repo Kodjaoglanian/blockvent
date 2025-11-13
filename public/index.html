@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Patrimônio - Blockchain</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sistema de Gestão de Patrimônio</h1>
+            <p>Interface Blockchain - Hyperledger Fabric</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('listar')">Listar</button>
+            <button class="tab-button" onclick="showTab('criar')">Criar</button>
+            <button class="tab-button" onclick="showTab('buscar')">Buscar</button>
+            <button class="tab-button" onclick="showTab('atualizar')">Atualizar</button>
+            <button class="tab-button" onclick="showTab('transferir')">Transferir</button>
+            <button class="tab-button" onclick="showTab('historico')">Histórico</button>
+        </div>
+
+        <!-- Tab: Listar Ativos -->
+        <div id="listar" class="tab-content active">
+            <h2>Lista de Ativos</h2>
+            <button onclick="carregarTodosAtivos()" class="btn-primary">Carregar Todos os Ativos</button>
+            <div id="listaAtivos" class="resultado"></div>
+        </div>
+
+        <!-- Tab: Criar Ativo -->
+        <div id="criar" class="tab-content">
+            <h2>Criar Novo Ativo</h2>
+            <form id="formCriar" onsubmit="criarAtivo(event)">
+                <div class="form-group">
+                    <label>ID do Ativo</label>
+                    <input type="text" id="criarId" required>
+                </div>
+                <div class="form-group">
+                    <label>Nome</label>
+                    <input type="text" id="criarNome" required>
+                </div>
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <textarea id="criarDescricao" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Responsável</label>
+                    <input type="text" id="criarResponsavel" required>
+                </div>
+                <div class="form-group">
+                    <label>Local</label>
+                    <input type="text" id="criarLocal" required>
+                </div>
+                <div class="form-group">
+                    <label>Valor</label>
+                    <input type="number" step="0.01" id="criarValor" required>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="criarStatus" required>
+                        <option value="Ativo">Ativo</option>
+                        <option value="Inativo">Inativo</option>
+                        <option value="Manutenção">Manutenção</option>
+                        <option value="Descartado">Descartado</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Criar Ativo</button>
+            </form>
+            <div id="resultadoCriar" class="resultado"></div>
+        </div>
+
+        <!-- Tab: Buscar Ativo -->
+        <div id="buscar" class="tab-content">
+            <h2>Buscar Ativo por ID</h2>
+            <div class="form-group">
+                <label>ID do Ativo</label>
+                <input type="text" id="buscarId" placeholder="Digite o ID do ativo">
+                <button onclick="buscarAtivo()" class="btn-primary" style="margin-top: 12px;">Buscar</button>
+            </div>
+            <div id="resultadoBuscar" class="resultado"></div>
+        </div>
+
+        <!-- Tab: Atualizar Ativo -->
+        <div id="atualizar" class="tab-content">
+            <h2>Atualizar Ativo</h2>
+            <form id="formAtualizar" onsubmit="atualizarAtivo(event)">
+                <div class="form-group">
+                    <label>ID do Ativo (obrigatório)</label>
+                    <input type="text" id="atualizarId" required>
+                </div>
+                <div class="form-group">
+                    <label>Nome</label>
+                    <input type="text" id="atualizarNome">
+                </div>
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <textarea id="atualizarDescricao"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Responsável</label>
+                    <input type="text" id="atualizarResponsavel">
+                </div>
+                <div class="form-group">
+                    <label>Local</label>
+                    <input type="text" id="atualizarLocal">
+                </div>
+                <div class="form-group">
+                    <label>Valor</label>
+                    <input type="number" step="0.01" id="atualizarValor">
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="atualizarStatus">
+                        <option value="">-- Selecione --</option>
+                        <option value="Ativo">Ativo</option>
+                        <option value="Inativo">Inativo</option>
+                        <option value="Manutenção">Manutenção</option>
+                        <option value="Descartado">Descartado</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Atualizar Ativo</button>
+            </form>
+            <div id="resultadoAtualizar" class="resultado"></div>
+        </div>
+
+        <!-- Tab: Transferir Ativo -->
+        <div id="transferir" class="tab-content">
+            <h2>Transferir Ativo</h2>
+            <form id="formTransferir" onsubmit="transferirAtivo(event)">
+                <div class="form-group">
+                    <label>ID do Ativo</label>
+                    <input type="text" id="transferirId" required>
+                </div>
+                <div class="form-group">
+                    <label>Novo Responsável</label>
+                    <input type="text" id="transferirResponsavel" required>
+                </div>
+                <button type="submit" class="btn-primary">Transferir Ativo</button>
+            </form>
+            <div id="resultadoTransferir" class="resultado"></div>
+        </div>
+
+        <!-- Tab: Histórico -->
+        <div id="historico" class="tab-content">
+            <h2>Histórico do Ativo</h2>
+            <div class="form-group">
+                <label>ID do Ativo</label>
+                <input type="text" id="historicoId" placeholder="Digite o ID do ativo">
+                <button onclick="buscarHistorico()" class="btn-primary" style="margin-top: 12px;">Buscar Histórico</button>
+            </div>
+            <div id="resultadoHistorico" class="resultado"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+

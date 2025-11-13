@@ -1,0 +1,15 @@
+{
+  "name": "blockvent",
+  "version": "1.0.0",
+  "description": "Aplicação de gestão de patrimônio com Hyperledger Fabric",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "fabric-network": "^2.2.19"
+  }
+}
+
+
