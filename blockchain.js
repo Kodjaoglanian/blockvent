@@ -139,7 +139,7 @@ export async function getAllAssets() {
 export async function getAssetById(id) {
     try {
         await ensureConnection();
-        const result = await contract.evaluateTransaction('GetAsset', id);
+        const result = await contract.evaluateTransaction('ReadAsset', id);
         const resultString = result.toString();
         if (!resultString || resultString.trim() === '') {
             throw new Error('Ativo não encontrado');
@@ -163,13 +163,39 @@ export async function getAssetById(id) {
 
 /**
  * Cria um novo ativo
+ * Parâmetros: id, name, category, serial, location, owner
  */
 export async function createAsset(asset) {
     try {
         await ensureConnection();
-        const assetJson = JSON.stringify(asset);
-        const result = await contract.submitTransaction('CreateAsset', assetJson);
-        return JSON.parse(result.toString());
+        // Mapear campos do asset para os parâmetros do chaincode
+        const id = asset.id || '';
+        const name = asset.nome || asset.name || '';
+        const category = asset.categoria || asset.category || '';
+        const serial = asset.serial || asset.serie || '';
+        const location = asset.local || asset.location || '';
+        const owner = asset.responsavel || asset.owner || '';
+        
+        const result = await contract.submitTransaction(
+            'CreateAsset',
+            id,
+            name,
+            category,
+            serial,
+            location,
+            owner
+        );
+        
+        const resultString = result.toString();
+        if (!resultString || resultString.trim() === '') {
+            return { success: true, message: 'Ativo criado com sucesso' };
+        }
+        
+        try {
+            return JSON.parse(resultString);
+        } catch (parseError) {
+            return { success: true, data: resultString };
+        }
     } catch (error) {
         console.error('Erro ao criar ativo:', error);
         throw error;
@@ -178,13 +204,41 @@ export async function createAsset(asset) {
 
 /**
  * Atualiza um ativo existente
+ * Parâmetros: id, name, category, location, owner
  */
 export async function updateAsset(asset) {
     try {
         await ensureConnection();
-        const assetJson = JSON.stringify(asset);
-        const result = await contract.submitTransaction('UpdateAsset', assetJson);
-        return JSON.parse(result.toString());
+        if (!asset.id) {
+            throw new Error('ID do ativo é obrigatório');
+        }
+        
+        // Mapear campos do asset para os parâmetros do chaincode
+        const id = asset.id;
+        const name = asset.nome || asset.name || '';
+        const category = asset.categoria || asset.category || '';
+        const location = asset.local || asset.location || '';
+        const owner = asset.responsavel || asset.owner || '';
+        
+        const result = await contract.submitTransaction(
+            'UpdateAsset',
+            id,
+            name,
+            category,
+            location,
+            owner
+        );
+        
+        const resultString = result.toString();
+        if (!resultString || resultString.trim() === '') {
+            return { success: true, message: 'Ativo atualizado com sucesso' };
+        }
+        
+        try {
+            return JSON.parse(resultString);
+        } catch (parseError) {
+            return { success: true, data: resultString };
+        }
     } catch (error) {
         console.error('Erro ao atualizar ativo:', error);
         throw error;
@@ -207,12 +261,21 @@ export async function transferAsset(id, novoResponsavel) {
 
 /**
  * Retorna o histórico completo de um ativo
+ * Nota: Esta função pode não estar disponível no chaincode.
+ * Como alternativa, podemos usar ReadAsset para obter os dados atuais.
  */
 export async function getAssetHistory(id) {
     try {
         await ensureConnection();
-        const result = await contract.evaluateTransaction('GetAssetHistory', id);
-        return JSON.parse(result.toString());
+        // Tentar ler o ativo atual como alternativa
+        const asset = await getAssetById(id);
+        
+        // Se houver histórico no chaincode, tentar buscar
+        // Por enquanto, retornamos os dados do ativo atual
+        return {
+            asset: asset,
+            message: 'Histórico completo não disponível. Mostrando dados atuais do ativo.'
+        };
     } catch (error) {
         console.error(`Erro ao buscar histórico do ativo ${id}:`, error);
         throw error;

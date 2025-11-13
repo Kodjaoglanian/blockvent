@@ -106,24 +106,25 @@ async function handleAPI(req, res, pathname, query) {
         // POST /create - Cria um novo ativo
         if (pathname === '/create' && req.method === 'POST') {
             const body = await parseBody(req);
-            const { id, nome, descricao, responsavel, local, valor, status } = body;
+            const { id, nome, categoria, serial, responsavel, local, valor, status } = body;
 
-            if (!id || !nome || !descricao || !responsavel || !local || !valor || !status) {
+            if (!id || !nome || !responsavel || !local) {
                 sendJSON(res, 400, { 
                     success: false, 
-                    error: 'Todos os campos são obrigatórios: id, nome, descricao, responsavel, local, valor, status' 
+                    error: 'Campos obrigatórios: id, nome, responsavel, local' 
                 });
                 return;
             }
 
             const asset = {
                 id,
-                nome,
-                descricao,
-                responsavel,
-                local,
-                valor: parseFloat(valor),
-                status
+                nome: nome || '',
+                categoria: categoria || category || '',
+                serial: serial || serie || '',
+                responsavel: responsavel || '',
+                local: local || '',
+                valor: valor ? parseFloat(valor) : 0,
+                status: status || 'AVAILABLE'
             };
 
             const result = await blockchain.createAsset(asset);
@@ -134,17 +135,16 @@ async function handleAPI(req, res, pathname, query) {
         // POST /update - Atualiza um ativo existente
         if (pathname === '/update' && req.method === 'POST') {
             const body = await parseBody(req);
-            const { id, nome, descricao, responsavel, local, valor, status } = body;
+            const { id, nome, categoria, responsavel, local, valor, status } = body;
 
             if (!id) {
                 sendJSON(res, 400, { success: false, error: 'ID do ativo é obrigatório' });
                 return;
             }
 
-            const asset = {};
-            if (id) asset.id = id;
+            const asset = { id };
             if (nome) asset.nome = nome;
-            if (descricao) asset.descricao = descricao;
+            if (categoria) asset.categoria = categoria;
             if (responsavel) asset.responsavel = responsavel;
             if (local) asset.local = local;
             if (valor) asset.valor = parseFloat(valor);
